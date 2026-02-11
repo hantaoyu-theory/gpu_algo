@@ -17,6 +17,13 @@ from typing import Iterable
 
 import torch
 
+try:
+    import triton
+    import triton.language as tl
+except ImportError:  # pragma: no cover - optional dependency
+    triton = None
+    tl = None
+
 
 DTYPE_MAP = {
     "float32": torch.float32,
@@ -137,6 +144,41 @@ def _bench_peer_bandwidth(
     return bytes_moved / avg_s
 
 
+if triton is not None:
+    @triton.jit
+    def _fma_kernel(x_ptr, n_elements, ops: tl.constexpr, BLOCK: tl.constexpr):
+        pid = tl.program_id(0)
+        offs = pid * BLOCK + tl.arange(0, BLOCK)
+        mask = offs < n_elements
+        x = tl.load(x_ptr + offs, mask=mask, other=0.0)
+        a = 1.0003
+        b = 0.9997
+        for _ in range(ops):
+            x = x * a + b
+        tl.store(x_ptr + offs, x, mask=mask)
+
+
+def _bench_compute_only_triton(
+    dev: torch.device,
+    numel: int,
+    dtype: torch.dtype,
+    runs: int,
+    warmup: int,
+    ops: int,
+) -> float | None:
+    if triton is None:
+        return None
+    x = torch.randn(numel, device=dev, dtype=dtype)
+    grid = lambda meta: (triton.cdiv(numel, meta["BLOCK"]),)
+
+    def _op() -> None:
+        _fma_kernel[grid](x, numel, ops=ops, BLOCK=256)
+
+    avg_s = _time_cuda_op(dev, _op, runs, warmup)
+    flops = float(numel) * float(ops) * 2.0
+    return flops / avg_s
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Estimate GPU model parameters.")
     parser.add_argument("--gpus", type=_parse_gpu_list, default="0,1,2,3")
@@ -144,6 +186,12 @@ def main() -> None:
     parser.add_argument("--matmul-n", type=int, default=8192, help="Matmul size (n x n)")
     parser.add_argument(
         "--vec-numel", type=int, default=1 << 26, help="Vector size for elementwise ops"
+    )
+    parser.add_argument(
+        "--compute-ops",
+        type=int,
+        default=1024,
+        help="FMA ops per element for compute-only benchmark (Triton)",
     )
     parser.add_argument("--runs", type=int, default=5)
     parser.add_argument("--warmup", type=int, default=2)
@@ -167,6 +215,9 @@ def main() -> None:
     x_e, B_eff = _bench_elementwise_add(dev0, args.vec_numel, dtype, args.runs, args.warmup)
     x = _bench_addcmul(dev0, args.vec_numel, dtype, args.runs, args.warmup)
     B_d2d = _bench_device_copy(dev0, args.vec_numel, dtype, args.runs, args.warmup)
+    x_compute_only = _bench_compute_only_triton(
+        dev0, args.vec_numel, dtype, args.runs, args.warmup, args.compute_ops
+    )
 
     bytes_elem = float(args.vec_numel) * torch.tensor([], dtype=dtype).element_size() * 3.0
     mem_time_e = bytes_elem / B_d2d
@@ -191,6 +242,10 @@ def main() -> None:
         print(f"x (compute est)   = {x_compute / 1e9:.3f} GFLOP/s")
     else:
         print("x (compute est)   = inf (memory-dominated)")
+    if x_compute_only is not None:
+        print(f"x (compute-only, Triton) = {x_compute_only / 1e9:.3f} GFLOP/s")
+    else:
+        print("x (compute-only, Triton) = unavailable (install triton)")
     print()
 
     n = args.matmul_n
