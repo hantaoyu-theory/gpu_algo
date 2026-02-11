@@ -144,6 +144,34 @@ def _bench_peer_bandwidth(
     return bytes_moved / avg_s
 
 
+def _estimate_multigpu_breakdown(
+    n: int,
+    elem_size: int,
+    x_m: float,
+    B_d2d: float,
+    L_avg: float,
+    strategy: str,
+) -> tuple[float, float, float, float]:
+    n2 = float(n) * float(n)
+    n3 = float(n) * float(n) * float(n)
+    flops = 2.0 * n3
+
+    if strategy in {"row", "col"}:
+        intergpu_bytes = (4.5 * n2) * elem_size
+        hbm_bytes = (6.0 * n2) * elem_size
+    elif strategy == "block2x2":
+        intergpu_bytes = (3.75 * n2) * elem_size
+        hbm_bytes = (5.0 * n2) * elem_size
+    else:
+        raise ValueError(f"Unknown strategy: {strategy}")
+
+    t_compute = flops / (x_m * 4.0)
+    t_hbm = hbm_bytes / B_d2d
+    t_intergpu = intergpu_bytes / L_avg if L_avg > 0 else 0.0
+    t_total = t_compute + t_hbm + t_intergpu
+    return t_compute, t_hbm, t_intergpu, t_total
+
+
 if triton is not None:
     @triton.jit
     def _fma_kernel(x_ptr, n_elements, ops: tl.constexpr, BLOCK: tl.constexpr):
@@ -192,6 +220,12 @@ def main() -> None:
         type=int,
         default=1024,
         help="FMA ops per element for compute-only benchmark (Triton)",
+    )
+    parser.add_argument(
+        "--multi-gpu-n",
+        type=int,
+        default=16384,
+        help="Matrix size for multi-GPU breakdown estimates",
     )
     parser.add_argument("--runs", type=int, default=5)
     parser.add_argument("--warmup", type=int, default=2)
@@ -269,13 +303,35 @@ def main() -> None:
     print(f"Inter-GPU transfer: {pct_intergpu:.2f}% (not used in single-GPU matmul)")
     print()
 
+    l_values = []
     if len(devices) > 1:
         print("Inter-GPU bandwidth (GPU0 -> GPUn):")
         for dev in devices[1:]:
             bw = _bench_peer_bandwidth(
                 devices[0], dev, args.vec_numel, dtype, args.runs, args.warmup
             )
+            l_values.append(bw)
             print(f"  L(0->{dev.index}) = {bw / 1e9:.3f} GB/s")
+        print()
+
+    if len(l_values) > 0:
+        l_avg = sum(l_values) / len(l_values)
+        elem_size = torch.tensor([], dtype=dtype).element_size()
+        n = args.multi_gpu_n
+        print("=== Multi-GPU Matmul Estimated Breakdown (4 GPUs) ===")
+        print(f"n = {n}, elem_size = {elem_size} bytes, L_avg = {l_avg / 1e9:.3f} GB/s")
+        for strategy in ("row", "col", "block2x2"):
+            t_compute, t_hbm, t_intergpu, t_total = _estimate_multigpu_breakdown(
+                n, elem_size, x_m, B_d2d, l_avg, strategy
+            )
+            pct_compute = 100.0 * t_compute / t_total if t_total > 0 else 0.0
+            pct_hbm = 100.0 * t_hbm / t_total if t_total > 0 else 0.0
+            pct_intergpu = 100.0 * t_intergpu / t_total if t_total > 0 else 0.0
+            print(f"--- {strategy} ---")
+            print(f"total time: {t_total * 1e3:.3f} ms")
+            print(f"TensorCore compute: {pct_compute:.2f}%")
+            print(f"HBM<->L1 transfer: {pct_hbm:.2f}% (proxy via D2D copy)")
+            print(f"Inter-GPU transfer: {pct_intergpu:.2f}% (proxy via L_avg)")
 
 
 if __name__ == "__main__":
