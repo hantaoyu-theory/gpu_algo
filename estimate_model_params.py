@@ -150,12 +150,12 @@ if triton is not None:
         pid = tl.program_id(0)
         offs = pid * BLOCK + tl.arange(0, BLOCK)
         mask = offs < n_elements
-        x = tl.load(x_ptr + offs, mask=mask, other=0.0)
-        a = 1.0003
-        b = 0.9997
+        x = tl.load(x_ptr + offs, mask=mask, other=0.0).to(tl.float32)
+        a = tl.full([BLOCK], 1.0003, tl.float32)
+        b = tl.full([BLOCK], 0.9997, tl.float32)
         for _ in range(ops):
             x = x * a + b
-        tl.store(x_ptr + offs, x, mask=mask)
+        tl.store(x_ptr + offs, x.to(tl.float16), mask=mask)
 
 
 def _bench_compute_only_triton(
