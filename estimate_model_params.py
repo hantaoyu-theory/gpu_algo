@@ -254,10 +254,19 @@ def main() -> None:
     flops = 2.0 * n * n * n
     t_compute = flops / x_m
     t_transfer = bytes_moved / B_d2d
+    t_intergpu = 0.0
+    t_total = t_compute + t_transfer + t_intergpu
+    pct_compute = 100.0 * t_compute / t_total if t_total > 0 else 0.0
+    pct_transfer = 100.0 * t_transfer / t_total if t_total > 0 else 0.0
+    pct_intergpu = 100.0 * t_intergpu / t_total if t_total > 0 else 0.0
     print("=== Matmul Time Estimate (A,B,C once) ===")
     print(f"n = {n}, bytes = {bytes_moved / 1e6:.3f} MB")
     print(f"compute time = {t_compute * 1e3:.3f} ms")
     print(f"transfer time = {t_transfer * 1e3:.3f} ms (using D2D bandwidth)")
+    print("=== Estimated Time Breakdown ===")
+    print(f"TensorCore compute: {pct_compute:.2f}%")
+    print(f"HBM<->L1 transfer: {pct_transfer:.2f}% (proxy via D2D copy)")
+    print(f"Inter-GPU transfer: {pct_intergpu:.2f}% (not used in single-GPU matmul)")
     print()
 
     if len(devices) > 1:
