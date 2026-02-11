@@ -54,6 +54,37 @@ def _split_sizes(n: int, parts: int) -> list[int]:
     return [base + (1 if i < rem else 0) for i in range(parts)]
 
 
+def _bench_device_copy(
+    dev: torch.device, numel: int, dtype: torch.dtype, runs: int, warmup: int
+) -> float:
+    src = torch.randn(numel, device=dev, dtype=dtype)
+    dst = torch.empty_like(src)
+
+    for _ in range(warmup):
+        dst.copy_(src)
+    torch.cuda.synchronize(dev)
+
+    times = []
+    for _ in range(runs):
+        start = time.perf_counter()
+        dst.copy_(src)
+        torch.cuda.synchronize(dev)
+        times.append(time.perf_counter() - start)
+    avg_s = sum(times) / len(times)
+    bytes_moved = float(numel) * src.element_size()
+    return bytes_moved / avg_s
+
+
+def _estimate_hbm_bytes(n: int, elem_size: int, strategy: str) -> float:
+    n2 = float(n) * float(n)
+    if strategy in {"row", "col"}:
+        # Approx: read A + read B + write C per GPU, aggregated.
+        return 6.0 * n2 * elem_size
+    if strategy == "block2x2":
+        return 5.0 * n2 * elem_size
+    return 3.0 * n2 * elem_size
+
+
 def _empty_timings(devices: list[torch.device]) -> dict[str, float]:
     timings: dict[str, float] = {}
     for i in range(len(devices)):
@@ -435,6 +466,7 @@ def _print_report(
     timings: dict[str, float] | None,
     devices: list[torch.device],
     use_cuda_events: bool,
+    breakdown: dict[str, float] | None = None,
 ) -> None:
     print(f"--- Strategy: {strategy} ---")
     print(f"Total time:   {avg_time_s*1e3:.3f} ms")
@@ -451,6 +483,11 @@ def _print_report(
         print(f"Assemble:     {timings['assemble_s']*1e3:.3f} ms")
     elif timings:
         print("Per-stage timings disabled (enable --use-cuda-events)")
+    if breakdown:
+        print("Estimated breakdown (model/proxy):")
+        print(f"TensorCore compute: {breakdown['pct_compute']:.2f}%")
+        print(f"HBM<->L1 transfer: {breakdown['pct_hbm']:.2f}%")
+        print(f"Inter-GPU transfer: {breakdown['pct_intergpu']:.2f}%")
     print()
 
 
@@ -484,6 +521,17 @@ def main() -> None:
         "--use-cuda-events",
         action="store_true",
         help="Use CUDA events for per-stage timings",
+    )
+    parser.add_argument(
+        "--breakdown",
+        action="store_true",
+        help="Estimate compute/transfer breakdown (model/proxy)",
+    )
+    parser.add_argument(
+        "--d2d-numel",
+        type=int,
+        default=1 << 26,
+        help="Vector size for D2D bandwidth estimate (breakdown)",
     )
     parser.add_argument(
         "--profile-host-io",
@@ -558,6 +606,9 @@ def main() -> None:
     print()
 
     results: dict[str, list[tuple[int, float, float, float]]] = {s: [] for s in strategies}
+    d2d_bw = None
+    if args.breakdown:
+        d2d_bw = _bench_device_copy(devices[0], args.d2d_numel, dtype, args.runs, args.warmup)
 
     for n in ns:
         dev0 = devices[0]
@@ -606,7 +657,35 @@ def main() -> None:
             h2d_ms = (last_detail["h2d_s"] * 1e3) if last_detail else 0.0
             d2h_ms = (last_detail["d2h_s"] * 1e3) if last_detail else 0.0
             results[strategy].append((n, avg_time * 1e3, h2d_ms, d2h_ms))
-            _print_report(strategy, avg_time, last_detail, devices, args.use_cuda_events)
+            breakdown = None
+            if args.breakdown and d2d_bw:
+                elem_size = torch.tensor([], dtype=dtype).element_size()
+                hbm_bytes = _estimate_hbm_bytes(n, elem_size, strategy)
+                hbm_time = hbm_bytes / d2d_bw
+                intergpu_time = 0.0
+                compute_time = 0.0
+                if last_detail and args.use_cuda_events:
+                    compute_time = max(
+                        last_detail.get("gpu0_kernel_s", 0.0),
+                        last_detail.get("gpu1_kernel_s", 0.0),
+                        last_detail.get("gpu2_kernel_s", 0.0),
+                        last_detail.get("gpu3_kernel_s", 0.0),
+                    )
+                    intergpu_time = sum(
+                        last_detail.get(f"gpu0_to_gpu{i}_s", 0.0)
+                        + last_detail.get(f"gpu{i}_to_gpu0_s", 0.0)
+                        for i in range(1, 4)
+                    )
+                total = compute_time + hbm_time + intergpu_time
+                if total > 0:
+                    breakdown = {
+                        "pct_compute": 100.0 * compute_time / total,
+                        "pct_hbm": 100.0 * hbm_time / total,
+                        "pct_intergpu": 100.0 * intergpu_time / total,
+                    }
+            _print_report(
+                strategy, avg_time, last_detail, devices, args.use_cuda_events, breakdown
+            )
         print()
 
     if args.wandb:
