@@ -95,6 +95,20 @@ def _bench_addcmul(
     return flops / avg_s
 
 
+def _bench_device_copy(
+    dev: torch.device, numel: int, dtype: torch.dtype, runs: int, warmup: int
+) -> float:
+    src = torch.randn(numel, device=dev, dtype=dtype)
+    dst = torch.empty_like(src)
+
+    def _op() -> None:
+        dst.copy_(src)
+
+    avg_s = _time_cuda_op(dev, _op, runs, warmup)
+    bytes_moved = float(numel) * src.element_size()
+    return bytes_moved / avg_s
+
+
 def _bench_peer_bandwidth(
     src: torch.device,
     dst: torch.device,
@@ -152,11 +166,43 @@ def main() -> None:
     x_m = _bench_matmul(dev0, args.matmul_n, dtype, args.runs, args.warmup)
     x_e, B_eff = _bench_elementwise_add(dev0, args.vec_numel, dtype, args.runs, args.warmup)
     x = _bench_addcmul(dev0, args.vec_numel, dtype, args.runs, args.warmup)
+    B_d2d = _bench_device_copy(dev0, args.vec_numel, dtype, args.runs, args.warmup)
+
+    bytes_elem = float(args.vec_numel) * torch.tensor([], dtype=dtype).element_size() * 3.0
+    mem_time_e = bytes_elem / B_d2d
+    compute_time_e = max(0.0, (float(args.vec_numel) / x_e) - mem_time_e)
+    x_e_compute = float(args.vec_numel) / compute_time_e if compute_time_e > 0 else float("inf")
+
+    bytes_addcmul = float(args.vec_numel) * torch.tensor([], dtype=dtype).element_size() * 3.0
+    mem_time_x = bytes_addcmul / B_d2d
+    compute_time_x = max(0.0, (float(args.vec_numel) * 3.0 / x) - mem_time_x)
+    x_compute = float(args.vec_numel) * 3.0 / compute_time_x if compute_time_x > 0 else float("inf")
 
     print(f"x_m (matmul)  = {x_m / 1e12:.3f} TFLOP/s")
     print(f"x_e (elem add)= {x_e / 1e9:.3f} GFLOP/s")
     print(f"x (addcmul)   = {x / 1e9:.3f} GFLOP/s")
     print(f"B (HBM eff)   = {B_eff / 1e9:.3f} GB/s")
+    print(f"B (D2D copy)  = {B_d2d / 1e9:.3f} GB/s")
+    if x_e_compute != float("inf"):
+        print(f"x_e (compute est) = {x_e_compute / 1e9:.3f} GFLOP/s")
+    else:
+        print("x_e (compute est) = inf (memory-dominated)")
+    if x_compute != float("inf"):
+        print(f"x (compute est)   = {x_compute / 1e9:.3f} GFLOP/s")
+    else:
+        print("x (compute est)   = inf (memory-dominated)")
+    print()
+
+    n = args.matmul_n
+    elem_size = torch.tensor([], dtype=dtype).element_size()
+    bytes_moved = 3.0 * n * n * elem_size
+    flops = 2.0 * n * n * n
+    t_compute = flops / x_m
+    t_transfer = bytes_moved / B_d2d
+    print("=== Matmul Time Estimate (A,B,C once) ===")
+    print(f"n = {n}, bytes = {bytes_moved / 1e6:.3f} MB")
+    print(f"compute time = {t_compute * 1e3:.3f} ms")
+    print(f"transfer time = {t_transfer * 1e3:.3f} ms (using D2D bandwidth)")
     print()
 
     if len(devices) > 1:
