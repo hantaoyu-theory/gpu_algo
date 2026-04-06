@@ -1,0 +1,88 @@
+{
+  "rows": [
+    {
+      "case": "d128_gaussian",
+      "algorithm": "BF-FP32",
+      "n": 2000,
+      "recall": 1.0
+    },
+    {
+      "case": "d128_gaussian",
+      "algorithm": "BF-FP16",
+      "n": 2000,
+      "recall": 0.99935
+    },
+    {
+      "case": "d128_gaussian",
+      "algorithm": "BF-INT8",
+      "n": 2000,
+      "recall": 0.95935
+    },
+    {
+      "case": "d128_gaussian",
+      "algorithm": "BF-GEMM",
+      "n": 2000,
+      "recall": 1.0
+    },
+    {
+      "case": "d128_gaussian",
+      "algorithm": "IVF1(C=64,p=16)",
+      "n": 2000,
+      "recall": 0.5879
+    },
+    {
+      "case": "d128_gaussian",
+      "algorithm": "IVF-INT8(C=128,p=8)",
+      "n": 2000,
+      "recall": 0.2562
+    },
+    {
+      "case": "d128_gaussian",
+      "algorithm": "LSH L64 K3 w0 m800",
+      "n": 2000,
+      "recall": 0.24805
+    },
+    {
+      "case": "fashion784",
+      "algorithm": "BF-FP32",
+      "n": 300,
+      "recall": 1.0
+    },
+    {
+      "case": "fashion784",
+      "algorithm": "BF-FP16",
+      "n": 300,
+      "recall": 1.0
+    },
+    {
+      "case": "fashion784",
+      "algorithm": "BF-INT8",
+      "n": 300,
+      "recall": 0.994
+    },
+    {
+      "case": "fashion784",
+      "algorithm": "BF-GEMM",
+      "n": 300,
+      "recall": 1.0
+    },
+    {
+      "case": "fashion784",
+      "algorithm": "IVF1(C=64,p=4)",
+      "n": 300,
+      "recall": 0.9866666666666667
+    },
+    {
+      "case": "fashion784",
+      "algorithm": "IVF-INT8(C=64,p=16)",
+      "n": 300,
+      "recall": 0.994
+    },
+    {
+      "case": "fashion784",
+      "algorithm": "LSH L64 K3 w0 m800",
+      "n": 300,
+      "recall": 0.001
+    }
+  ]
+}

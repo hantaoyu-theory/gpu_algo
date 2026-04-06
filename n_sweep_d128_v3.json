@@ -1,0 +1,186 @@
+{
+  "meta": {
+    "mode": "synthetic",
+    "m": 250000,
+    "d": 128,
+    "k": 10,
+    "seed": 42,
+    "n_values": [
+      100,
+      300,
+      1000,
+      2000
+    ],
+    "subtitle": "gaussian"
+  },
+  "results": [
+    {
+      "algorithm": "BF-FP32",
+      "n": 100,
+      "query_ms": 24.68555450439453,
+      "ms_per_query": 0.2468555450439453,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 100,
+      "query_ms": 26.029446411132813,
+      "ms_per_query": 0.2602944641113281,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 100,
+      "query_ms": 6.6607200622558596,
+      "ms_per_query": 0.0666072006225586,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 100,
+      "query_ms": 29.3842035929362,
+      "ms_per_query": 0.293842035929362,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=16)",
+      "n": 100,
+      "query_ms": 8.75763168334961,
+      "ms_per_query": 0.08757631683349609,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=128,p=8)",
+      "n": 100,
+      "query_ms": 2.199091148376465,
+      "ms_per_query": 0.021990911483764652,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP32",
+      "n": 300,
+      "query_ms": 72.25662231445312,
+      "ms_per_query": 0.24085540771484376,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 300,
+      "query_ms": 73.77754516601563,
+      "ms_per_query": 0.24592515055338543,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 300,
+      "query_ms": 18.096450805664062,
+      "ms_per_query": 0.060321502685546875,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 300,
+      "query_ms": 59.84172566731771,
+      "ms_per_query": 0.19947241889105904,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=16)",
+      "n": 300,
+      "query_ms": 28.378680419921874,
+      "ms_per_query": 0.09459560139973958,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=128,p=8)",
+      "n": 300,
+      "query_ms": 3.3631519317626952,
+      "ms_per_query": 0.011210506439208984,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP32",
+      "n": 1000,
+      "query_ms": 308.8323974609375,
+      "ms_per_query": 0.3088323974609375,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 1000,
+      "query_ms": 265.8931640625,
+      "ms_per_query": 0.26589316406249996,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 1000,
+      "query_ms": 61.19453735351563,
+      "ms_per_query": 0.06119453735351563,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 1000,
+      "query_ms": 135.11178588867188,
+      "ms_per_query": 0.13511178588867187,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=16)",
+      "n": 1000,
+      "query_ms": 106.74027099609376,
+      "ms_per_query": 0.10674027099609376,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=128,p=8)",
+      "n": 1000,
+      "query_ms": 7.6244956970214846,
+      "ms_per_query": 0.007624495697021484,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP32",
+      "n": 2000,
+      "query_ms": 615.29375,
+      "ms_per_query": 0.30764687500000004,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 2000,
+      "query_ms": 530.057080078125,
+      "ms_per_query": 0.26502854003906245,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 2000,
+      "query_ms": 116.686962890625,
+      "ms_per_query": 0.0583434814453125,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 2000,
+      "query_ms": 258.52797444661456,
+      "ms_per_query": 0.1292639872233073,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=16)",
+      "n": 2000,
+      "query_ms": 209.219384765625,
+      "ms_per_query": 0.1046096923828125,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=128,p=8)",
+      "n": 2000,
+      "query_ms": 13.291107177734375,
+      "ms_per_query": 0.006645553588867188,
+      "recall": null
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "meta": {
+    "mode": "annb",
+    "m": 60000,
+    "d": 784,
+    "k": 10,
+    "seed": 42,
+    "n_values": [
+      50,
+      100,
+      200,
+      300
+    ],
+    "subtitle": "/workspace/gpu_algo/fashion-mnist-784-euclidean.hdf5 (euclidean)"
+  },
+  "results": [
+    {
+      "algorithm": "BF-FP32",
+      "n": 50,
+      "query_ms": 35.22590026855469,
+      "ms_per_query": 0.7045180053710938,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 50,
+      "query_ms": 32.56857604980469,
+      "ms_per_query": 0.6513715209960939,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 50,
+      "query_ms": 4.610380935668945,
+      "ms_per_query": 0.0922076187133789,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 50,
+      "query_ms": 10.935914357503256,
+      "ms_per_query": 0.2187182871500651,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=4)",
+      "n": 50,
+      "query_ms": 7.584130859375,
+      "ms_per_query": 0.15168261718749998,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=64,p=16)",
+      "n": 50,
+      "query_ms": 4.149264144897461,
+      "ms_per_query": 0.08298528289794921,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP32",
+      "n": 100,
+      "query_ms": 35.857537841796876,
+      "ms_per_query": 0.35857537841796877,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 100,
+      "query_ms": 32.743081665039064,
+      "ms_per_query": 0.32743081665039064,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 100,
+      "query_ms": 4.588963317871094,
+      "ms_per_query": 0.045889633178710934,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 100,
+      "query_ms": 5.223082542419434,
+      "ms_per_query": 0.052230825424194334,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=4)",
+      "n": 100,
+      "query_ms": 7.9204765319824215,
+      "ms_per_query": 0.07920476531982422,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=64,p=16)",
+      "n": 100,
+      "query_ms": 4.646854400634766,
+      "ms_per_query": 0.04646854400634766,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP32",
+      "n": 200,
+      "query_ms": 47.543463134765624,
+      "ms_per_query": 0.23771731567382812,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 200,
+      "query_ms": 42.69916687011719,
+      "ms_per_query": 0.21349583435058594,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 200,
+      "query_ms": 10.602690887451171,
+      "ms_per_query": 0.05301345443725586,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 200,
+      "query_ms": 6.677781422932942,
+      "ms_per_query": 0.03338890711466471,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=4)",
+      "n": 200,
+      "query_ms": 8.829100799560546,
+      "ms_per_query": 0.04414550399780273,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=64,p=16)",
+      "n": 200,
+      "query_ms": 5.654988861083984,
+      "ms_per_query": 0.028274944305419922,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP32",
+      "n": 300,
+      "query_ms": 70.4294189453125,
+      "ms_per_query": 0.23476472981770835,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-FP16",
+      "n": 300,
+      "query_ms": 66.79555053710938,
+      "ms_per_query": 0.22265183512369793,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-INT8",
+      "n": 300,
+      "query_ms": 21.30301513671875,
+      "ms_per_query": 0.07101005045572917,
+      "recall": null
+    },
+    {
+      "algorithm": "BF-GEMM",
+      "n": 300,
+      "query_ms": 8.644341150919596,
+      "ms_per_query": 0.02881447050306532,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF1(C=64,p=4)",
+      "n": 300,
+      "query_ms": 11.164918518066406,
+      "ms_per_query": 0.037216395060221355,
+      "recall": null
+    },
+    {
+      "algorithm": "IVF-INT8(C=64,p=16)",
+      "n": 300,
+      "query_ms": 6.872310638427734,
+      "ms_per_query": 0.02290770212809245,
+      "recall": null
+    }
+  ]
+}

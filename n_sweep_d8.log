@@ -1,0 +1,41 @@
+
+=== n=100 ===
+  BF-FP32                  2.07 ms    0.0207 ms/query  recall=1.0000
+  BF-FP16                  1.76 ms    0.0176 ms/query  recall=0.9960
+  BF-INT8                  1.71 ms    0.0171 ms/query  recall=0.9430
+  BF-GEMM                101.23 ms    1.0123 ms/query  recall=1.0000
+  IVF1(C=128,p=8)          0.46 ms    0.0046 ms/query  recall=0.9950
+  IVF1(C=256,p=8)          0.39 ms    0.0039 ms/query  recall=0.9900
+  IVF2(C=256,p=8)          0.38 ms    0.0038 ms/query  recall=0.9900
+  IVF-INT8(C=128,p=8)      0.37 ms    0.0037 ms/query  recall=0.9400
+
+=== n=300 ===
+  BF-FP32                  3.04 ms    0.0101 ms/query  recall=1.0000
+  BF-FP16                  2.24 ms    0.0075 ms/query  recall=0.9970
+  BF-INT8                  2.11 ms    0.0070 ms/query  recall=0.9407
+  BF-GEMM                136.34 ms    0.4545 ms/query  recall=1.0000
+  IVF1(C=128,p=8)          0.61 ms    0.0020 ms/query  recall=0.9933
+  IVF1(C=256,p=8)          0.51 ms    0.0017 ms/query  recall=0.9800
+  IVF2(C=256,p=8)          0.68 ms    0.0023 ms/query  recall=0.9800
+  IVF-INT8(C=128,p=8)      0.46 ms    0.0015 ms/query  recall=0.9370
+
+=== n=1000 ===
+  BF-FP32                  8.46 ms    0.0085 ms/query  recall=1.0000
+  BF-FP16                  5.96 ms    0.0060 ms/query  recall=0.9987
+  BF-INT8                  2.76 ms    0.0028 ms/query  recall=0.9340
+  BF-GEMM                397.16 ms    0.3972 ms/query  recall=1.0000
+  IVF1(C=128,p=8)          1.19 ms    0.0012 ms/query  recall=0.9923
+  IVF1(C=256,p=8)          0.88 ms    0.0009 ms/query  recall=0.9814
+  IVF2(C=256,p=8)          1.72 ms    0.0017 ms/query  recall=0.9814
+  IVF-INT8(C=128,p=8)      0.69 ms    0.0007 ms/query  recall=0.9295
+
+=== n=3000 ===
+  BF-FP32                 23.07 ms    0.0077 ms/query  recall=1.0000
+  BF-FP16                 15.65 ms    0.0052 ms/query  recall=0.9991
+  BF-INT8                  7.08 ms    0.0024 ms/query  recall=0.9329
+  BF-GEMM                731.71 ms    0.2439 ms/query  recall=1.0000
+  IVF1(C=128,p=8)          3.49 ms    0.0012 ms/query  recall=0.9913
+  IVF1(C=256,p=8)          2.39 ms    0.0008 ms/query  recall=0.9807
+  IVF2(C=256,p=8)          8.89 ms    0.0030 ms/query  recall=0.9807
+  IVF-INT8(C=128,p=8)      4.85 ms    0.0016 ms/query  recall=0.9278
+Results saved to /workspace/gpu_algo/runs/n_sweep_d8.json

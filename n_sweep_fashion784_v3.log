@@ -1,0 +1,35 @@
+[setup] loading HDF5 dataset: /workspace/gpu_algo/fashion-mnist-784-euclidean.hdf5  max_n=300
+[setup] building ANN IVF indices ...
+
+=== n=50 ===
+  BF-FP32                 35.23 ms    0.7045 ms/query  recall=n/a
+  BF-FP16                 32.57 ms    0.6514 ms/query  recall=n/a
+  BF-INT8                  4.61 ms    0.0922 ms/query  recall=n/a
+  BF-GEMM                 10.94 ms    0.2187 ms/query  recall=n/a
+  IVF1(C=64,p=4)           7.58 ms    0.1517 ms/query  recall=n/a
+  IVF-INT8(C=64,p=16)      4.15 ms    0.0830 ms/query  recall=n/a
+
+=== n=100 ===
+  BF-FP32                 35.86 ms    0.3586 ms/query  recall=n/a
+  BF-FP16                 32.74 ms    0.3274 ms/query  recall=n/a
+  BF-INT8                  4.59 ms    0.0459 ms/query  recall=n/a
+  BF-GEMM                  5.22 ms    0.0522 ms/query  recall=n/a
+  IVF1(C=64,p=4)           7.92 ms    0.0792 ms/query  recall=n/a
+  IVF-INT8(C=64,p=16)      4.65 ms    0.0465 ms/query  recall=n/a
+
+=== n=200 ===
+  BF-FP32                 47.54 ms    0.2377 ms/query  recall=n/a
+  BF-FP16                 42.70 ms    0.2135 ms/query  recall=n/a
+  BF-INT8                 10.60 ms    0.0530 ms/query  recall=n/a
+  BF-GEMM                  6.68 ms    0.0334 ms/query  recall=n/a
+  IVF1(C=64,p=4)           8.83 ms    0.0441 ms/query  recall=n/a
+  IVF-INT8(C=64,p=16)      5.65 ms    0.0283 ms/query  recall=n/a
+
+=== n=300 ===
+  BF-FP32                 70.43 ms    0.2348 ms/query  recall=n/a
+  BF-FP16                 66.80 ms    0.2227 ms/query  recall=n/a
+  BF-INT8                 21.30 ms    0.0710 ms/query  recall=n/a
+  BF-GEMM                  8.64 ms    0.0288 ms/query  recall=n/a
+  IVF1(C=64,p=4)          11.16 ms    0.0372 ms/query  recall=n/a
+  IVF-INT8(C=64,p=16)      6.87 ms    0.0229 ms/query  recall=n/a
+Results saved to /workspace/gpu_algo/runs/n_sweep_fashion784_v3.json

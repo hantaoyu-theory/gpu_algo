@@ -1,0 +1,193 @@
+{
+  "rows": [
+    {
+      "workload": "copy",
+      "size": 1000000,
+      "ms": 0.012724800407886505,
+      "est_bytes": 8000000.0,
+      "est_flops": 0.0,
+      "eff_bw_gbs": 628.6935545992379,
+      "eff_gflops": 0.0,
+      "note": "streaming read+write"
+    },
+    {
+      "workload": "saxpy",
+      "size": 1000000,
+      "ms": 0.31410720348358157,
+      "est_bytes": 12000000.0,
+      "est_flops": 2000000.0,
+      "eff_bw_gbs": 38.20351735622402,
+      "eff_gflops": 6.367252892704004,
+      "note": "2 flops/elem"
+    },
+    {
+      "workload": "reduce",
+      "size": 1000000,
+      "ms": 0.024879999458789825,
+      "est_bytes": 4000000.0,
+      "est_flops": null,
+      "eff_bw_gbs": 160.7717076773024,
+      "eff_gflops": null,
+      "note": "tree reduction"
+    },
+    {
+      "workload": "compact",
+      "size": 1000000,
+      "ms": 0.18885600566864014,
+      "est_bytes": 8000000.0,
+      "est_flops": null,
+      "eff_bw_gbs": 42.36031558369665,
+      "eff_gflops": null,
+      "note": "mask + gather"
+    },
+    {
+      "workload": "sort",
+      "size": 1000000,
+      "ms": 0.1595136046409607,
+      "est_bytes": null,
+      "est_flops": null,
+      "eff_bw_gbs": null,
+      "eff_gflops": null,
+      "note": "comparison/reordering heavy"
+    },
+    {
+      "workload": "copy",
+      "size": 5000000,
+      "ms": 0.028358399868011475,
+      "est_bytes": 40000000.0,
+      "est_flops": 0.0,
+      "eff_bw_gbs": 1410.5168199253847,
+      "eff_gflops": 0.0,
+      "note": "streaming read+write"
+    },
+    {
+      "workload": "saxpy",
+      "size": 5000000,
+      "ms": 0.10182880163192749,
+      "est_bytes": 60000000.0,
+      "est_flops": 10000000.0,
+      "eff_bw_gbs": 589.2242571691775,
+      "eff_gflops": 98.20404286152957,
+      "note": "2 flops/elem"
+    },
+    {
+      "workload": "reduce",
+      "size": 5000000,
+      "ms": 0.024040000140666963,
+      "est_bytes": 20000000.0,
+      "est_flops": null,
+      "eff_bw_gbs": 831.9467505396246,
+      "eff_gflops": null,
+      "note": "tree reduction"
+    },
+    {
+      "workload": "compact",
+      "size": 5000000,
+      "ms": 0.22911999225616456,
+      "est_bytes": 40000000.0,
+      "est_flops": null,
+      "eff_bw_gbs": 174.58101148710992,
+      "eff_gflops": null,
+      "note": "mask + gather"
+    },
+    {
+      "workload": "sort",
+      "size": 5000000,
+      "ms": 0.3523936033248901,
+      "est_bytes": null,
+      "est_flops": null,
+      "eff_bw_gbs": null,
+      "eff_gflops": null,
+      "note": "comparison/reordering heavy"
+    },
+    {
+      "workload": "copy",
+      "size": 20000000,
+      "ms": 0.09992640018463135,
+      "est_bytes": 160000000.0,
+      "est_flops": 0.0,
+      "eff_bw_gbs": 1601.1784643935162,
+      "eff_gflops": 0.0,
+      "note": "streaming read+write"
+    },
+    {
+      "workload": "saxpy",
+      "size": 20000000,
+      "ms": 0.3651376008987427,
+      "est_bytes": 240000000.0,
+      "est_flops": 40000000.0,
+      "eff_bw_gbs": 657.286456966548,
+      "eff_gflops": 109.547742827758,
+      "note": "2 flops/elem"
+    },
+    {
+      "workload": "reduce",
+      "size": 20000000,
+      "ms": 0.05286239981651306,
+      "est_bytes": 80000000.0,
+      "est_flops": null,
+      "eff_bw_gbs": 1513.3630005009675,
+      "eff_gflops": null,
+      "note": "tree reduction"
+    },
+    {
+      "workload": "compact",
+      "size": 20000000,
+      "ms": 1.0566800117492676,
+      "est_bytes": 160000000.0,
+      "est_flops": null,
+      "eff_bw_gbs": 151.41764604322364,
+      "eff_gflops": null,
+      "note": "mask + gather"
+    },
+    {
+      "workload": "sort",
+      "size": 20000000,
+      "ms": 7.416111755371094,
+      "est_bytes": null,
+      "est_flops": null,
+      "eff_bw_gbs": null,
+      "eff_gflops": null,
+      "note": "comparison/reordering heavy"
+    },
+    {
+      "workload": "gemm",
+      "size": 1073741824,
+      "ms": 0.03877440094947815,
+      "est_bytes": 6291456.0,
+      "est_flops": 2147483648.0,
+      "eff_bw_gbs": 162.25798067641517,
+      "eff_gflops": 55384.05740421637,
+      "note": "1024x1024 @ 1024x1024"
+    },
+    {
+      "workload": "gemm",
+      "size": 8589934592,
+      "ms": 0.07463999986648559,
+      "est_bytes": 25165824.0,
+      "est_flops": 17179869184.0,
+      "eff_bw_gbs": 337.1627015677396,
+      "eff_gflops": 230169.73760357688,
+      "note": "2048x2048 @ 2048x2048"
+    }
+  ],
+  "meta": {
+    "vec_sizes": [
+      1000000,
+      5000000,
+      20000000
+    ],
+    "gemm_sizes": [
+      [
+        1024,
+        1024,
+        1024
+      ],
+      [
+        2048,
+        2048,
+        2048
+      ]
+    ]
+  }
+}

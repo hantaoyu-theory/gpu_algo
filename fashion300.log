@@ -1,0 +1,25 @@
+================================================================================
+  ANN Exploration  |  m=60,000  d=784  n=300  k=10  |  fashion-mnist-784-euclidean.hdf5  (euclidean)
+  X (FP32):188.2 MB  (FP16):94.1 MB  (INT8):47.0 MB  |  L2=96 MB → X DOES NOT FIT in L2
+================================================================================
+
+  Measured effective BW (16 MB L2 array): 1712 GB/s
+
+  Ground truth: from dataset (precomputed neighbors)
+
+  JIT warm-up ...
+
+  ── Benchmarks ──────────────────────────────────────────────────
+  BF-FP32                   163.82 ms   recall=1.0000
+  BF-FP16                   130.00 ms   recall=1.0000
+  BF-INT8                    52.29 ms   recall=0.9940
+  BF-GEMM running (tiled cuBLAS) ...
+  BF-GEMM                    48.79 ms   recall=1.0000
+
+  LSH skipped (--no-lsh)
+
+  ── IVF1 (1 block/query, sequential cluster scan) ────────────────────
+  IVF1(C=64,p=4)             11.17 ms   recall=0.9867
+  IVF1(C=64,p=8)             18.18 ms   recall=0.9983
+  IVF1(C=64,p=16)            64.13 ms   recall=1.0000
+  IVF1(C=128,p=4)            24.44 ms   recall=0.9667
