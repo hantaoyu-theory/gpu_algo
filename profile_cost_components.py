@@ -233,16 +233,13 @@ def write_markdown(rows: list[dict], outfile: Path) -> None:
     lines = [
         "# Cost Component Profiles",
         "",
-        "Rough decomposition of measured runtime into `T_move`, `T_compute`, and `T_orch`.",
-        "",
-        "| experiment | algorithm | n/size | actual ms | T_move | T_compute | T_orch | dominant |",
-        "|---|---|---:|---:|---:|---:|---:|---|",
+        "| experiment | algorithm | n/size | actual ms |",
+        "|---|---|---:|---:|",
     ]
     for r in rows:
         lines.append(
             f"| {r['experiment']} | {r['algorithm']} | {r['n']} | "
-            f"{r['actual_ms']:.3f} | {r['T_move_ms']:.3f} | {r['T_compute_ms']:.3f} | "
-            f"{r['T_orch_ms']:.3f} | {r['dominant']} |"
+            f"{r['actual_ms']:.3f} |"
         )
     outfile.write_text("\n".join(lines) + "\n", encoding="ascii")
 

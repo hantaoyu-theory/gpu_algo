@@ -33,6 +33,12 @@ try:
 except ImportError:
     HAS_LSH = False
 
+try:
+    from cuvs.neighbors import cagra
+    HAS_CAGRA = True
+except ImportError:
+    HAS_CAGRA = False
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Shared device helper (heap_push) — inlined into every kernel via __device__
 # ─────────────────────────────────────────────────────────────────────────────
@@ -497,6 +503,54 @@ def bench_lsh_fast(X_gpu: cp.ndarray, Q_gpu: cp.ndarray, k: int,
     cp.cuda.Stream.null.synchronize()
     out = idx.search_fast(Q_gpu, k, oversample=oversample, quiet=True)
     return cp.asnumpy(out), ms, build_ms
+
+
+def cagra_search_grid(d: int):
+    """
+    Return (short_name, SearchParams) pairs.
+
+    The default graph build params are already strong; search knobs are the
+    main speed/recall trade-off surface we want to expose in this benchmark.
+    """
+    if not HAS_CAGRA:
+        return []
+    return [
+        ("CAGRA(itopk=32,sw=1)", cagra.SearchParams(itopk_size=32, search_width=1)),
+        ("CAGRA(itopk=64,sw=1)", cagra.SearchParams(itopk_size=64, search_width=1)),
+        ("CAGRA(itopk=128,sw=2)", cagra.SearchParams(itopk_size=128, search_width=2)),
+    ]
+
+
+def build_cagra_index(X_gpu: cp.ndarray, metric: str = "sqeuclidean"):
+    """
+    Build a CAGRA index once and reuse it across multiple search parameter sets.
+    Returns (index, build_ms).
+    """
+    if not HAS_CAGRA:
+        raise RuntimeError("cuVS CAGRA is not available")
+
+    build_params = cagra.IndexParams(metric=metric)
+    cp.cuda.Stream.null.synchronize()
+    t0 = time.perf_counter()
+    index = cagra.build(build_params, X_gpu)
+    cp.cuda.Stream.null.synchronize()
+    build_ms = (time.perf_counter() - t0) * 1000.0
+    return index, build_ms
+
+
+def run_cagra_search(index, Q_gpu: cp.ndarray, k: int, search_params, reps: int = 10):
+    """Timed CAGRA search. Returns (ids_np, ms)."""
+    if not HAS_CAGRA:
+        raise RuntimeError("cuVS CAGRA is not available")
+
+    def fn():
+        _, neighbors = cagra.search(search_params, index, Q_gpu, k)
+        return cp.asarray(neighbors)
+
+    ms = _tms(fn, reps=reps)
+    cp.cuda.Stream.null.synchronize()
+    ids = fn()
+    return cp.asnumpy(ids), ms
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1539,6 +1593,23 @@ def run_benchmark_suite(
           lambda: run_bf_gemm(Q_gpu, X_gpu, k),
           m*d*4/1e6, None)
 
+    if HAS_CAGRA and not getattr(args, "no_cagra", False):
+        print(f"\n  ── CAGRA (cuVS graph ANN) {'─'*39}")
+        try:
+            cagra_index, cagra_build_ms = build_cagra_index(X_gpu)
+            print(f"  CAGRA build {cagra_build_ms:7.0f} ms")
+            for cagra_name, cagra_params in cagra_search_grid(d):
+                ids_c, ms_c = run_cagra_search(cagra_index, Q_gpu, k, cagra_params, reps=10)
+                rc_c = recall_at_k(ids_c, gt, k)
+                results.append((cagra_name, ms_c, rc_c, m * d * 4 / 1e6, None))
+                print(f"  {cagra_name:<30} {ms_c:7.2f} ms  recall={rc_c:.4f}")
+        except Exception as e:
+            print(f"  CAGRA FAILED: {e}")
+    elif not HAS_CAGRA:
+        print("\n  CAGRA skipped (install cuvs)")
+    else:
+        print("\n  CAGRA skipped (--no-cagra)")
+
     # ── LSH (FastLSHIndex) ────────────────────────────────────────────────────
     if HAS_LSH and not args.no_lsh:
         print(f"\n  ── LSH Fast (E2LSH + CUDA stage7 + fused rerank, os={args.lsh_oversample}) {'─'*12}")
@@ -1811,6 +1882,8 @@ def run():
     ap.add_argument('--n',    type=int,   default=1_000)
     ap.add_argument('--k',    type=int,   default=10)
     ap.add_argument('--seed', type=int,   default=42)
+    ap.add_argument('--no-cagra', action='store_true',
+                    help='skip cuVS CAGRA benchmarks even if cuvs is installed')
     ap.add_argument('--no-lsh', action='store_true',
                     help='skip FastLSH benchmarks')
     ap.add_argument('--lsh-oversample', type=int, default=4,
